@@ -9,44 +9,40 @@ static_resources:
       - name: envoy.filters.network.http_connection_manager
         typed_config:
           "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
-          stat_prefix: http_proxy
+          stat_prefix: ingress_http
           route_config:
             name: local_route
             virtual_hosts:
-            - name: allbackend_cluster
-              domains:
-              - "*"
+            - name: backend
+              domains: ["*"]
               routes:
-              - match: { prefix: "/"}
+              - match: { prefix: "/" }
                 route:
                   cluster: allbackend_cluster
           http_filters:
           - name: envoy.filters.http.router
-            typed_config: {}
 
   clusters:
     - name: allbackend_cluster
       connect_timeout: 1s
-      type: strict_dns
+      type: static
       lb_policy: round_robin
       load_assignment:
         cluster_name: allbackend_cluster
         endpoints:
-          - lb_endpoints:
-            - endpoint:
-                address:
-                  socket_address:
-                    address: 127.0.0.1
-                    port_value: 1111
-            
-            - endpoint:
-                address:
-                  socket_address:
-                    address: 127.0.0.1
-                    port_value: 2222
-                  
-            - endpoint:
-                address:
-                  socket_address:
-                    address: 127.0.0.1
-                    port_value: 3333
+        - lb_endpoints:
+          - endpoint:
+              address:
+                socket_address:
+                  address: 127.0.0.1
+                  port_value: 1111
+          - endpoint:
+              address:
+                socket_address:
+                  address: 127.0.0.1
+                  port_value: 2222
+          - endpoint:
+              address:
+                socket_address:
+                  address: 127.0.0.1
+                  port_value: 3333
